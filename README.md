@@ -6,9 +6,9 @@ snake - A snake video game.
 Installation
 ============
 
-$ make
-$ make install
-$ snake
+    $ make
+    $ make install
+    $ snake
 
 Run `snake -h` to view more options.
 
