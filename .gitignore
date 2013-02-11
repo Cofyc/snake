@@ -1,0 +1,9 @@
+*.[aos]
+*.out
+*.tar.gz
+*.pyc
+*~
+/tags
+/snake
+/test-*
+!test-*.c
