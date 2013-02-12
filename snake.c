@@ -131,7 +131,26 @@ snake_update()
         draw_cell(snake.stdscr, node->offset_y, node->offset_x, node->cell);
         node = node->next;
     }
+
+    // Update sidebar
+    if (snake.running) {
+        mvwprintw(snake.sidebar, 2, 2, "status: running");
+    } else {
+        mvwprintw(snake.sidebar, 2, 2, "status: stopped");
+    }
+    mvwprintw(snake.sidebar, 3, 2, "snake size: %d", snake.snake_inst->length);
+    mvwprintw(snake.sidebar, 5, 2, "quit: q or <ESC>");
+    mvwprintw(snake.sidebar, 7, 2, "pause: <space>");
+    mvwprintw(snake.sidebar, 9, 2, "move: arrow keys");
+    mvwprintw(snake.sidebar, 10, 2, "  or h, j, k, l");
+
+    // move cursor to end of sidebar (for Mac OS X's default Terminal, which
+    // cannot hide cursor).
+    mvwprintw(snake.sidebar, snake.yard_y, 19, " ");
+    
+    // Refresh windows
     wrefresh(snake.stdscr);
+    wrefresh(snake.sidebar);
 }
 
 int
@@ -179,8 +198,11 @@ snake_init(char *err)
     int x = 0;
     int y = 0;
     getmaxyx(stdscr, y, x);
-    if (x < snake.yard_x*2 + 2 || y < snake.yard_y + 1)
-        return snake_set_error(err, "terminal should have at least %d width and %d height, current (%d, %d) plz resize it", snake.yard_x * 2 + 2, snake.yard_y + 1, x, y);
+    // width has: snake.yard_x *2 + 2 (border) + 20 (sidebar)
+    int minx = snake.yard_x * 2 + 2 + 20;
+    int miny = snake.yard_y + 1;
+    if (x < minx || y < miny)
+        return snake_set_error(err, "terminal should have at least %d width and %d height, current (%d, %d) plz resize it", minx, miny, x, y);
 
     /* Init yard buffer. */
     snake.yard_buffer = malloc(snake.yard_y * snake.yard_x);
@@ -200,6 +222,9 @@ snake_init(char *err)
     for (int i = 0; i < snake.yard_y + 1; i++) {
         draw_cell(stdscr, i, snake.yard_x, 0x17);
     }
+
+    // Draw sidebar
+    snake.sidebar = newwin(snake.yard_y+1, 20, 0, (snake.yard_x + 1) * CELL_X);
 
     // Update
     snake_update();
@@ -323,10 +348,25 @@ snake_alarm()
 {
     if (!snake.running)
         return;
+
+    // move or not
+    // speed,               length
+    //  4 steps/sec         3
+    //  10 steps/sec        20
+    int threshold = 100;
+    static int steps = 0;
+    steps += 10 + snake.snake_inst->length * 4;
+    if (steps < threshold) {
+        return;
+    }
+    steps = 0;
+
     // random food
-    if (snake_rand() % 10 == 0) {
+    if (snake_rand() % 7 == 0) {
         snake.yard_buffer[snake_rand() % snake.yard_y * snake.yard_x + snake_rand() % snake.yard_x] = CELL(1, snake_rand() % 7);
     }
+
+    // 
     if (snake_move()) {
         snake_end();
         die("You are dead.");
@@ -338,9 +378,9 @@ snake_run(char *err)
 {
     // use alarm signal as timer
     struct itimerval tout_val, ovalue;
-    tout_val.it_interval.tv_usec = 400 * 1000;
+    tout_val.it_interval.tv_usec = 100 * 1000;
     tout_val.it_interval.tv_sec = 0;
-    tout_val.it_value.tv_usec = 400 * 1000;
+    tout_val.it_value.tv_usec = 100 * 1000;
     tout_val.it_value.tv_sec = 0;
     if (setitimer(ITIMER_REAL, &tout_val, &ovalue) < 0)
         return snake_set_error(err, "timer error");
@@ -377,6 +417,7 @@ snake_run(char *err)
             break;
         case 32: // <space>
             snake_pause();
+            snake_update();
             break;
         case 'q':
         case 27: // <ESC>
