@@ -139,10 +139,11 @@ snake_update()
         mvwprintw(snake.sidebar, 2, 2, "status: stopped");
     }
     mvwprintw(snake.sidebar, 3, 2, "snake size: %d", snake.snake_inst->length);
-    mvwprintw(snake.sidebar, 5, 2, "quit: q or <ESC>");
-    mvwprintw(snake.sidebar, 7, 2, "pause: <space>");
-    mvwprintw(snake.sidebar, 9, 2, "move: arrow keys");
-    mvwprintw(snake.sidebar, 10, 2, "  or h, j, k, l");
+    mvwprintw(snake.sidebar, 4, 2, "food: %d", snake.food);
+    mvwprintw(snake.sidebar, 6, 2, "quit: q or <ESC>");
+    mvwprintw(snake.sidebar, 8, 2, "pause: <space>");
+    mvwprintw(snake.sidebar, 10, 2, "move: arrow keys");
+    mvwprintw(snake.sidebar, 11, 2, "  or h, j, k, l");
 
     // move cursor to end of sidebar (for Mac OS X's default Terminal, which
     // cannot hide cursor).
@@ -270,6 +271,7 @@ snake_move()
     if (XSTATUS_OF(snake.yard_buffer[head->offset_y * snake.yard_x + head->offset_x])) {
         snake_eat_cell(snake.snake_inst, snake.yard_buffer[head->offset_y * snake.yard_x + head->offset_x]);
         snake.yard_buffer[head->offset_y * snake.yard_x + head->offset_x] = 0;
+        snake.food--;
     }
 
     snake_update();
@@ -362,8 +364,12 @@ snake_alarm()
     steps = 0;
 
     // random food
-    if (snake_rand() % 7 == 0) {
-        snake.yard_buffer[snake_rand() % snake.yard_y * snake.yard_x + snake_rand() % snake.yard_x] = CELL(1, snake_rand() % 7);
+    if (snake_rand() % 7 == 0 && snake.food < 13) {
+        int position = snake_rand() % snake.yard_y * snake.yard_x + snake_rand() % snake.yard_x;
+        if (snake.yard_buffer[position] == 0) {
+            snake.yard_buffer[position] = CELL(1, snake_rand() % 7);
+            snake.food++;
+        }
     }
 
     // 

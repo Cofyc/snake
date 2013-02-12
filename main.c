@@ -12,8 +12,10 @@ struct snake snake = {
     .yard_x = 25,
     .yard_buffer = NULL,
     .running = true,
+    .food = 0,
     .snake_inst = NULL,
     .stdscr = NULL,
+    .sidebar = NULL,
 };
 
 static const char *const config_usage[] = {

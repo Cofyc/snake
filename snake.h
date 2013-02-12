@@ -14,7 +14,8 @@ struct snake {
     unsigned int yard_x; /* width, defaults: 24 */
     unsigned int yard_y; /* height, defaults: 24 */
     unsigned char *yard_buffer; /* yard_x * yard_y */
-    unsigned int running;
+    bool running;
+    unsigned int food;
     struct snake_t *snake_inst;
     WINDOW *stdscr;
     WINDOW *sidebar;
