@@ -3,6 +3,8 @@ NAME
 
 snake - A snake video game.
 
+Screenshot: ![snake](http://ww4.sinaimg.cn/large/6262af7ejw1e1qosyrj2aj.jpg)
+
 Installation
 ============
 
