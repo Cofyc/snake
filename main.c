@@ -7,7 +7,16 @@
 #include "usage.h"
 #include "argparse/argparse.h"
 
-struct snake snake;
+struct snake snake = {
+    .yard_y = 25,
+    .yard_x = 25,
+    .yard_buffer = NULL,
+    .score = 0,
+    .speed = 10,
+    .running = true,
+    .snake_inst = NULL,
+    .stdscr = NULL,
+};
 
 static const char *const config_usage[] = {
     "the snake [options]",
@@ -24,9 +33,6 @@ show_version_cb(struct argparse *this, const struct argparse_option *option)
 int
 main(int argc, const char **argv)
 {
-    snake.yard_y = 25;
-    snake.yard_x = 25;
-
     logger_logfile = "/tmp/snake.log";
     struct argparse argparse;
     struct argparse_option options[] = {

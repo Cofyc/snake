@@ -19,6 +19,8 @@ Using `h`, `j`, `k`, `l` or arrow keys to turn snake around.
 
 Type `q` or `<ESC>` to quit game.
 
+Type `<space>` to pause/restore game.
+
 Playing on Mac OS X
 ===================
 

@@ -15,6 +15,8 @@ struct snake {
     unsigned int yard_y; /* height, defaults: 24 */
     unsigned char *yard_buffer; /* yard_x * yard_y */
     unsigned int score;
+    unsigned int speed;
+    unsigned int running;
     struct snake_t *snake_inst;
     WINDOW *stdscr;
 };

@@ -254,6 +254,8 @@ snake_move()
 static void
 snake_up()
 {
+    if (!snake.running)
+        return;
     if (XSTATUS_OF(snake.snake_inst->head->cell) == 3) {
         return;
     }
@@ -263,6 +265,8 @@ snake_up()
 static void
 snake_down()
 {
+    if (!snake.running)
+        return;
     if (XSTATUS_OF(snake.snake_inst->head->cell) == 2) {
         return;
     }
@@ -272,6 +276,8 @@ snake_down()
 static void
 snake_left()
 {
+    if (!snake.running)
+        return;
     if (XSTATUS_OF(snake.snake_inst->head->cell) == 5) {
         return;
     }
@@ -281,10 +287,24 @@ snake_left()
 static void
 snake_right()
 {
+    if (!snake.running)
+        return;
     if (XSTATUS_OF(snake.snake_inst->head->cell) == 4) {
         return;
     }
     snake.snake_inst->head->cell = 0x52;
+}
+
+static void
+snake_pause()
+{
+    if (snake.running) {
+        snake.running = false;
+        logger(LOG_INFO, "game paused");
+    } else {
+        snake.running = true;
+        logger(LOG_INFO, "game restored");
+    }
 }
 
 static int
@@ -301,6 +321,8 @@ snake_rand()
 static void
 snake_alarm()
 {
+    if (!snake.running)
+        return;
     // random food
     if (snake_rand() % 10 == 0) {
         snake.yard_buffer[snake_rand() % snake.yard_y * snake.yard_x + snake_rand() % snake.yard_x] = CELL(1, snake_rand() % 7);
@@ -333,21 +355,28 @@ snake_run(char *err)
         case 260: // left arrow
             logger(LOG_INFO, "left");
             snake_left();
+            snake_update();
             break;
         case 'j': // down
         case 258: // down arrow
             logger(LOG_INFO, "down");
             snake_down();
+            snake_update();
             break;
         case 'k': // up
         case 259: // up arrow
             logger(LOG_INFO, "up");
             snake_up();
+            snake_update();
             break;
         case 'l': // right
         case 261: // right arrow
             logger(LOG_INFO, "right");
             snake_right();
+            snake_update();
+            break;
+        case 32: // <space>
+            snake_pause();
             break;
         case 'q':
         case 27: // <ESC>
